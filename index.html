@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parada | Inteligência em cada rota</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <main id="auth" class="auth-wrap" hidden>
+    <div class="auth-brand"><span class="logo-mark">P</span><span>parada<span class="brand-dot">.</span></span></div>
+    <div class="auth-card">
+      <span class="eyebrow">INTELIGÊNCIA EM CADA ROTA</span>
+      <h1 id="auth-title">Bem-vindo de volta</h1>
+      <p id="auth-description">Acesse os dados de operação da sua equipe.</p>
+      <div class="auth-tabs" aria-label="Acesso à conta"><button type="button" class="button" id="login-tab">Entrar</button><button type="button" class="button" id="register-tab">Criar conta</button></div>
+      <form id="auth-form" class="form-grid single">
+        <label id="auth-role-wrap" hidden>Quero me cadastrar como<select name="role" id="auth-role"><option value="driver">Motorista / Motoboy</option><option value="manager">Gerente / Dono da transportadora</option></select></label>
+        <label id="auth-name-wrap" hidden>Seu nome<input name="name" autocomplete="name"></label>
+        <label id="auth-phone-wrap" hidden>Telefone<input name="phone" type="tel" autocomplete="tel"></label>
+        <fieldset id="auth-driver-fields" class="form-grid single" hidden disabled>
+          <legend>Dados do motorista</legend>
+          <label>Documento<input name="document" required></label>
+          <label>Veículo (modelo e placa)<input name="vehicle" required placeholder="Ex.: Fiorino • ABC1D23"></label>
+          <label>Consumo (km/l, opcional)<input name="km_per_liter" type="number" min="0.01" step="0.01"></label>
+          <label>Código da equipe<input name="invite_code" required autocomplete="off"></label>
+          <small>Peça o código ao seu gerente para vincular seu cadastro à equipe dele.</small>
+        </fieldset>
+        <label>E-mail<input name="email" type="email" required autocomplete="email"></label>
+        <label>Senha<input name="password" type="password" required minlength="10" autocomplete="current-password"></label>
+        <button class="button primary" type="submit" id="auth-submit">Entrar no painel <span>→</span></button>
+      </form>
+      <button type="button" class="button" id="setup-link" hidden>Configurar administrador inicial</button>
+    </div>
+    <small>Dados da operação, em um só lugar.</small>
+  </main>
+
+  <div id="app" class="layout" hidden>
+    <aside class="sidebar">
+      <div class="brand"><span class="logo-mark">P</span><span>parada<span class="brand-dot">.</span></span></div>
+      <div class="side-label">ESPAÇO DE TRABALHO</div>
+      <nav id="nav" aria-label="Navegação principal">
+        <button data-page="dashboard" class="active"><span class="nav-icon">▦</span> Visão geral</button>
+        <button data-page="routes"><span class="nav-icon">⌁</span> Roteiros</button>
+        <button data-page="history"><span class="nav-icon">◷</span> Histórico</button>
+        <button data-page="people"><span class="nav-icon">♙</span> Equipe e pontos</button>
+        <button data-page="settings"><span class="nav-icon">⚙</span> Parâmetros</button>
+        <button data-page="audit"><span class="nav-icon">≡</span> Auditoria</button>
+      </nav>
+      <div class="side-bottom"><div class="side-tip"><span>✦</span><strong>Mais clareza para cada entrega</strong><small>Acompanhe suas rotas e encontre oportunidades.</small></div><div id="account"></div></div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar"><button id="menu-toggle" class="icon-button" aria-label="Abrir menu">☰</button><span id="breadcrumb">Visão geral</span><span class="topbar-right">PAINEL OPERACIONAL <span class="status-dot"></span></span></header>
+      <main id="content" class="content"></main>
+    </div>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

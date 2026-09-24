@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="790" viewBox="0 0 1250 790" role="img" aria-label="casos-de-uso.svg">
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#7aa69a"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="25" y="25" width="1200" height="740" rx="20" fill="#ffffff" stroke="#e2eae5" stroke-width="2"/>
+<text x="54" y="63" fill="#143a32" font-family="Arial,sans-serif" font-size="29" font-weight="800" text-anchor="start">Casos de uso</text>
+<text x="54" y="91" fill="#6d817a" font-family="Arial,sans-serif" font-size="14" font-weight="500" text-anchor="start">Atores e funções do MVP Parada</text>
+<rect x="65" y="145" width="190" height="74" rx="13" fill="#e8f5ed" stroke="#087f63" stroke-width="1.5"/>
+<text x="81" y="174" fill="#087f63" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Motorista</text>
+<rect x="65" y="385" width="190" height="74" rx="13" fill="#e8f5ed" stroke="#087f63" stroke-width="1.5"/>
+<text x="81" y="414" fill="#087f63" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Gerente</text>
+<rect x="65" y="625" width="190" height="74" rx="13" fill="#e8f5ed" stroke="#087f63" stroke-width="1.5"/>
+<text x="81" y="654" fill="#087f63" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Administrador</text>
+<ellipse cx="465.0" cy="169.0" rx="160.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="465.0" y="174.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Autenticar</text>
+<ellipse cx="465.0" cy="264.0" rx="160.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="465.0" y="269.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Registrar horários</text>
+<ellipse cx="465.0" cy="359.0" rx="160.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="465.0" y="364.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Consultar histórico</text>
+<ellipse cx="465.0" cy="454.0" rx="160.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="465.0" y="459.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Consultar dashboard</text>
+<ellipse cx="465.0" cy="549.0" rx="160.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="465.0" y="554.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Exportar CSV</text>
+<ellipse cx="925.0" cy="199.0" rx="195.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="925.0" y="204.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Cadastrar motoristas e pontos</text>
+<ellipse cx="925.0" cy="299.0" rx="195.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="925.0" y="304.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Montar roteiros</text>
+<ellipse cx="925.0" cy="399.0" rx="195.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="925.0" y="404.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Gerenciar usuários</text>
+<ellipse cx="925.0" cy="499.0" rx="195.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="925.0" y="504.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Configurar parâmetros</text>
+<ellipse cx="925.0" cy="599.0" rx="195.0" ry="29.0" fill="#f2f8f5" stroke="#288a6c" stroke-width="1.6"/>
+<text x="925.0" y="604.0" fill="#17493b" font-family="Arial,sans-serif" font-size="14" font-weight="600" text-anchor="middle">Consultar auditoria</text>
+<path d="M255 180 L295 180 L295 169 L305 169" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 181 L277 181 L277 264 L305 264" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 181 L269 181 L269 359 L305 359" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 182 L261 182 L261 454 L305 454" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 422 L284 422 L284 169 L305 169" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 422 L290 422 L290 264 L305 264" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 422 L298 422 L298 359 L305 359" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<line x1="255" y1="423" x2="305" y2="454" stroke="#7aa69a" stroke-width="2"/>
+<line x1="255" y1="424" x2="305" y2="549" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 422 L690 422 L690 199 L730 199" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 425 L700 425 L700 299 L730 299" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 662 L710 662 L710 399 L730 399" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 665 L720 665 L720 499 L730 499" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<path d="M255 668 L730 668 L730 599" fill="none" stroke="#7aa69a" stroke-width="2"/>
+<text x="65" y="754" fill="#6d817a" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">Gerente também consulta relatórios; administrador também executa os casos do gerente.</text>
+</svg>

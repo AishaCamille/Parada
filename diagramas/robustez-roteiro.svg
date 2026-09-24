@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="630" viewBox="0 0 1250 630" role="img" aria-label="robustez-roteiro.svg">
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#7aa69a"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="25" y="25" width="1200" height="580" rx="20" fill="#ffffff" stroke="#e2eae5" stroke-width="2"/>
+<text x="54" y="63" fill="#143a32" font-family="Arial,sans-serif" font-size="29" font-weight="800" text-anchor="start">Robustez · montagem e coleta</text>
+<text x="54" y="91" fill="#6d817a" font-family="Arial,sans-serif" font-size="14" font-weight="500" text-anchor="start">Ator → interface → controle → entidades persistidas</text>
+<rect x="55" y="260" width="195" height="85" rx="13" fill="#e8f5ed" stroke="#087f63" stroke-width="1.5"/>
+<text x="71" y="289" fill="#087f63" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Gerente / Motorista</text>
+<text x="71" y="313" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">inicia ou atualiza roteiro</text>
+<rect x="320" y="145" width="220" height="84" rx="13" fill="#eaf2fb" stroke="#2f6399" stroke-width="1.5"/>
+<text x="336" y="174" fill="#2f6399" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Tela de roteiros</text>
+<text x="336" y="198" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">data, motorista, pontos</text>
+<rect x="320" y="385" width="220" height="84" rx="13" fill="#eaf2fb" stroke="#2f6399" stroke-width="1.5"/>
+<text x="336" y="414" fill="#2f6399" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Tela de horários</text>
+<text x="336" y="438" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">chegada e saída</text>
+<rect x="615" y="145" width="230" height="84" rx="13" fill="#fff2e8" stroke="#a75620" stroke-width="1.5"/>
+<text x="631" y="174" fill="#a75620" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Controle de roteiro</text>
+<text x="631" y="198" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">valida ordem e vínculos</text>
+<rect x="615" y="385" width="230" height="84" rx="13" fill="#fff2e8" stroke="#a75620" stroke-width="1.5"/>
+<text x="631" y="414" fill="#a75620" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Controle de horários</text>
+<text x="631" y="438" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">valida e calcula</text>
+<rect x="950" y="125" width="230" height="77" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="966" y="154" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Roteiro</text>
+<text x="966" y="178" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">data, motorista, distância</text>
+<rect x="950" y="225" width="230" height="77" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="966" y="254" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Ponto</text>
+<text x="966" y="278" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">endereço, coordenadas</text>
+<rect x="950" y="325" width="230" height="77" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="966" y="354" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Parada</text>
+<text x="966" y="378" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">ordem, chegada, saída</text>
+<rect x="950" y="425" width="230" height="77" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="966" y="454" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Auditoria</text>
+<text x="966" y="478" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">alterações e ator</text>
+<line x1="250" y1="299" x2="320" y2="187" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="250" y1="311" x2="320" y2="427" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="540" y1="187" x2="615" y2="187" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="540" y1="427" x2="615" y2="427" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="187" x2="950" y2="164" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="187" x2="950" y2="264" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="187" x2="950" y2="364" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="427" x2="950" y2="364" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="845" y1="427" x2="950" y2="464" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>

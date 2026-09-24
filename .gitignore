@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+data/
+_deps/
+test-*.sqlite3*
+tmp*/
+.pdfdeps/
+write_probe.txt

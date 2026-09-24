@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1330" height="950" viewBox="0 0 1330 950" role="img" aria-label="classes-conceituais.svg">
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#7aa69a"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="25" y="25" width="1280" height="900" rx="20" fill="#ffffff" stroke="#e2eae5" stroke-width="2"/>
+<text x="54" y="63" fill="#143a32" font-family="Arial,sans-serif" font-size="29" font-weight="800" text-anchor="start">Classes conceituais</text>
+<text x="54" y="91" fill="#6d817a" font-family="Arial,sans-serif" font-size="14" font-weight="500" text-anchor="start">Entidades, atributos principais e relações do domínio</text>
+<line x1="300" y1="215" x2="445" y2="215" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="348" y="202" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 → 0..*</text>
+<line x1="730" y1="215" x2="865" y2="215" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="765" y="202" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 → 1..*</text>
+<line x1="1080" y1="320" x2="1080" y2="430" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1093" y="390" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 ponto / parada</text>
+<line x1="185" y1="485" x2="185" y2="330" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="196" y="375" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">representa</text>
+<line x1="185" y1="585" x2="185" y2="680" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="295" y1="540" x2="445" y2="745" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="335" y="650" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">registra</text>
+<line x1="560" y1="680" x2="560" y2="330" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="573" y="520" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">calcula</text>
+<path d="M310 520 L395 520 L395 880 L815 880 L815 755 L865 755" fill="none" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="540" y="897" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">produz auditoria</text>
+<path d="M70 755 L45 755 L45 215 L70 215" fill="none" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="51" y="633" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">equipe</text>
+<rect x="70" y="130" width="240" height="200" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="86" y="159" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Motorista</text>
+<text x="86" y="183" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, nome, telefone</text>
+<text x="86" y="203" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">documento, veículo</text>
+<text x="86" y="223" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">km por litro</text>
+<text x="86" y="243" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">gerente responsável</text>
+<rect x="445" y="130" width="285" height="200" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="461" y="159" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Roteiro</text>
+<text x="461" y="183" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, data</text>
+<text x="461" y="203" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">motorista responsável</text>
+<text x="461" y="223" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">distância total</text>
+<text x="461" y="243" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">tempo total parado*</text>
+<text x="461" y="263" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">custo estimado*</text>
+<rect x="865" y="130" width="340" height="190" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="881" y="159" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Parada</text>
+<text x="881" y="183" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, ordem no roteiro</text>
+<text x="881" y="203" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">chegada, saída</text>
+<text x="881" y="223" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">tempo parado*</text>
+<rect x="865" y="430" width="340" height="150" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="881" y="459" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Ponto</text>
+<text x="881" y="483" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, endereço</text>
+<text x="881" y="503" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">latitude, longitude</text>
+<rect x="70" y="430" width="240" height="155" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="86" y="459" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Usuário</text>
+<text x="86" y="483" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, nome, e-mail</text>
+<text x="86" y="503" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">perfil, senha hash</text>
+<rect x="70" y="680" width="240" height="155" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="86" y="709" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Gerente</text>
+<text x="86" y="733" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, nome, telefone</text>
+<text x="86" y="753" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">e-mail, equipe</text>
+<rect x="445" y="680" width="285" height="170" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="461" y="709" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Parâmetro</text>
+<text x="461" y="733" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">combustível, consumo padrão</text>
+<text x="461" y="753" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">custo extra por km</text>
+<text x="461" y="773" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">jornada e regra de contagem</text>
+<rect x="865" y="680" width="340" height="170" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
+<text x="881" y="709" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Auditoria</text>
+<text x="881" y="733" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">instante, ator</text>
+<text x="881" y="753" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">entidade, ação</text>
+<text x="881" y="773" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">antes e depois</text>
+<text x="70" y="906" fill="#6d817a" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">* Atributos calculados a partir de horários, distância e parâmetros persistidos.</text>
+</svg>
