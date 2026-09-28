@@ -62,6 +62,7 @@ def use_cases():
     c.path("M255 181 L277 181 L277 264 L305 264")
     c.path("M255 181 L269 181 L269 359 L305 359")
     c.path("M255 182 L261 182 L261 454 L305 454")
+    c.path("M255 183 L265 183 L265 549 L305 549")
     c.path("M255 422 L284 422 L284 169 L305 169")
     c.path("M255 422 L290 422 L290 264 L305 264")
     c.path("M255 422 L298 422 L298 359 L305 359")
@@ -78,7 +79,7 @@ def use_cases():
 
 def robustness_routes():
     c=Canvas(1250,630,"Robustez · montagem e coleta","Ator → interface → controle → entidades persistidas")
-    c.box(55,260,195,85,"Gerente / Motorista",["inicia ou atualiza roteiro"],"actor")
+    c.box(55,260,195,85,"Gerente / Motorista",["gestão / coleta autorizada"],"actor")
     c.box(320,145,220,84,"Tela de roteiros",["data, motorista, pontos"],"boundary")
     c.box(320,385,220,84,"Tela de horários",["chegada e saída"],"boundary")
     c.box(615,145,230,84,"Controle de roteiro",["valida ordem e vínculos"],"control")
@@ -113,7 +114,7 @@ def classes():
     c=Canvas(1330,950,"Classes conceituais","Entidades, atributos principais e relações do domínio")
     # As linhas são desenhadas antes das classes para ficarem atrás dos cartões.
     c.line(300,215,445,215,True);c.text(348,202,"1 → 0..*",12)
-    c.line(730,215,865,215,True);c.text(765,202,"1 → 1..*",12)
+    c.line(730,215,865,215,True);c.text(765,202,"1 → 0..*",12)
     c.line(1080,320,1080,430,True);c.text(1093,390,"1 ponto / parada",12)
     c.line(185,485,185,330,True);c.text(196,375,"representa",12)
     c.line(185,585,185,680,True)
@@ -126,7 +127,7 @@ def classes():
     c.box(70,130,240,200,"Motorista",["id, nome, telefone", "documento, veículo", "km por litro", "gerente responsável"])
     c.box(445,130,285,200,"Roteiro",["id, data", "motorista responsável", "distância total", "tempo total parado*", "custo estimado*"])
     c.box(865,130,340,190,"Parada",["id, ordem no roteiro", "chegada, saída", "tempo parado*"])
-    c.box(865,430,340,150,"Ponto",["id, endereço", "latitude, longitude"])
+    c.box(865,430,340,150,"Ponto",["id, endereço", "latitude, longitude", "gerente proprietário (opcional)"])
     c.box(70,430,240,155,"Usuário",["id, nome, e-mail", "perfil, senha hash"])
     c.box(70,680,240,155,"Gerente",["id, nome, telefone", "e-mail, equipe"])
     c.box(445,680,285,170,"Parâmetro",["combustível, consumo padrão", "custo extra por km", "jornada e regra de contagem"])

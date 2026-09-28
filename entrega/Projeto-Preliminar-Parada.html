@@ -1,0 +1,319 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Projeto preliminar — Parada</title><style>@page{size:A4;margin:20mm 17mm}*{box-sizing:border-box}body{font:11pt/1.55 Arial,sans-serif;color:#243d35;margin:0}h1{font-size:30pt;color:#087c67;line-height:1.15;margin:0 0 20px}h2{font-size:18pt;color:#087c67;border-bottom:1px solid #dbe6e0;padding-bottom:5px;margin-top:26px}h3{font-size:13pt;color:#143a32;margin-top:20px}h1,h2,h3{break-after:avoid}p,li{orphans:3;widows:3}table{border-collapse:collapse;width:100%;font-size:9pt;margin:15px 0}td,th{border:1px solid #dbe6e0;padding:7px 9px;vertical-align:top}th{background:#eaf6ef;text-align:left}tr{break-inside:avoid}img{display:block;max-width:100%;max-height:240mm;margin:15px auto;break-inside:avoid}a{color:#087c67}pre{white-space:pre-wrap;background:#eff5f2;padding:12px}code{font-size:9.5pt}blockquote{border-left:4px solid #36b996;padding-left:16px;color:#567367}footer{font-size:9pt;color:#6b8378;margin-top:25px}.diagram-page{break-before:page;break-after:page;margin:0}.diagram-page img{max-height:225mm}.campaign-page{break-before:page}</style></head><body><h1>Projeto preliminar — Parada</h1>
+<p><strong>Disciplina:</strong> Engenharia de Software II.<br>
+<strong>Professor:</strong> Sandro Laudares.<br>
+<strong>Produto:</strong> Parada — inteligência em cada rota.<br>
+<strong>Referência:</strong> Especificação de Requisitos — Trabalho2, fornecida para o 2º Trabalho Avaliativo.<br>
+<strong>Versão:</strong> 28/09/2026.<br>
+<strong>Integrantes:</strong> preencher com os nomes da dupla ou trio antes de entregar.</p>
+<h2>1. Problema, objetivo e escopo</h2>
+<p>Equipes de logística precisam conhecer onde e por quanto tempo seus profissionais ficam parados. Sem registros por endereço, horários e roteiro, os gargalos ficam invisíveis e o custo do trajeto é difícil de avaliar.</p>
+<p>O Parada registra pontos ordenados de um roteiro diário e calcula tempos e custos. O MVP inclui cadastros, coleta de chegada e saída, histórico com endereços, gráficos por dia, mês e período, parâmetros editáveis e relatórios CSV. É uma aplicação web responsiva com servidor Python e persistência SQLite.</p>
+<p>Ficam fora do escopo roteirização automática, integração com ERP ou folha, telemetria em tempo real e aplicativo nativo publicado em lojas. As coordenadas são informadas manualmente; não há geocodificação externa. A distância é fornecida pelo responsável pelo roteiro.</p>
+<h2>2. Atores e permissões</h2>
+<table>
+<thead>
+<tr>
+<th>Ator</th>
+<th>Responsabilidades</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motorista/motoboy</td>
+<td>Criar conta vinculada à equipe, entrar, consultar próprios roteiros, registrar e corrigir seus horários, consultar próprios indicadores e histórico, exportar CSV.</td>
+</tr>
+<tr>
+<td>Gerente/coordenador</td>
+<td>Criar equipe, fornecer código de convite, cadastrar e editar motoristas, cadastrar e editar seus pontos, montar roteiros da equipe, alterar distância, registrar ou corrigir horários, consultar painel e relatórios da equipe.</td>
+</tr>
+<tr>
+<td>Administrador</td>
+<td>Cadastrar gerentes e acessos, executar as operações de gestão, alterar parâmetros globais, consultar auditoria.</td>
+</tr>
+</tbody>
+</table>
+<p>Todo novo motorista tem um gerente. Gerentes acessam apenas sua equipe e seus roteiros. Pontos criados por gerentes ficam restritos à equipe; pontos criados por administradores são compartilhados para consulta, com edição pelo administrador. A mesma regra de compartilhamento preserva pontos legados sem proprietário. Motoristas consultam apenas pontos de seus próprios roteiros.</p>
+<div class="diagram-page"><img alt="Casos de uso" src="../diagramas/casos-de-uso.svg" /></div>
+<h2>3. Casos de uso</h2>
+<h3>UC01 — Cadastrar profissional e equipe</h3>
+<p><strong>Atores:</strong> gerente, administrador e motorista no autocadastro.<br>
+<strong>Requisitos:</strong> RF01, RF02; RNF04.</p>
+<ol>
+<li>Gerente cria conta com nome, telefone, e-mail e senha e recebe código da equipe.</li>
+<li>Motorista cria conta com nome, telefone, documento, veículo, e-mail, senha e código da equipe; consumo é opcional.</li>
+<li>O sistema valida campos, documento único, e-mail único e vínculo, persistindo cadastro e acesso em uma transação.</li>
+<li>Alternativamente, gerente ou administrador cadastra os dados do motorista em Equipe e pontos. O administrador pode criar um acesso ligado a esse cadastro.</li>
+<li>Gerente ou administrador pode corrigir dados e consumo do motorista; a alteração é auditada.</li>
+</ol>
+<p><strong>Exceções:</strong> código inválido, campos ausentes, consumo não positivo, cadastro duplicado ou tentativa de alterar outra equipe impedem a operação.<br>
+<strong>Pós-condição:</strong> profissional persistido e associado ao responsável; quando há acesso, senha protegida por hash.</p>
+<h3>UC02 — Cadastrar ou corrigir ponto</h3>
+<p><strong>Atores:</strong> gerente e administrador. <strong>Requisitos:</strong> RF03, RNF05.</p>
+<p>O responsável informa endereço e, quando disponíveis, latitude e longitude. O sistema valida os limites geográficos e grava o ponto. Na edição, registra autor, instante, valores anteriores e novos na auditoria. O motorista não cadastra nem edita pontos.</p>
+<p><strong>Pós-condição:</strong> endereço disponível para compor os roteiros autorizados. Não se exige integração de mapas.</p>
+<h3>UC03 — Montar roteiro diário</h3>
+<p><strong>Atores:</strong> gerente e administrador. <strong>Requisitos:</strong> RF04; RN05, RN06.</p>
+<p><strong>Pré-condição:</strong> motorista e pontos cadastrados.</p>
+<ol>
+<li>Responsável escolhe data e motorista e informa distância não negativa.</li>
+<li>Sistema cria roteiro associado a exatamente um motorista e uma data.</li>
+<li>Responsável adiciona pontos um a um, começando pela partida.</li>
+<li>Sistema atribui posições 1, 2, 3… e persiste cada associação. Um mesmo endereço pode aparecer novamente em posições diferentes.</li>
+</ol>
+<p><strong>Exceções:</strong> motorista de outra equipe, ponto não autorizado ou referência inexistente impedem a operação.<br>
+<strong>Pós-condição:</strong> roteiro persistido com ordem definida. A especificação não limita o motorista a um roteiro por dia.</p>
+<h3>UC04 — Registrar ou corrigir horários</h3>
+<p><strong>Atores:</strong> motorista do roteiro, seu gerente e administrador. <strong>Requisitos:</strong> RF05, RF06; RN01, RN02, RN03; RNF05.</p>
+<ol>
+<li>Usuário abre o roteiro e seleciona o ponto.</li>
+<li>Informa chegada e saída, ou utiliza Agora para preencher o próximo horário disponível.</li>
+<li>Sistema valida a data da chegada, exige chegada antes da saída e rejeita saída anterior à chegada.</li>
+<li>Sistema persiste a alteração junto com sua auditoria e recalcula o ponto e o roteiro.</li>
+</ol>
+<p>Horários sem chegada ou saída completa permanecem em aberto e contribuem com zero. O início da contagem nunca pode ser inferior a 2; a partida sempre contribui com zero. A saída pode ocorrer após a meia-noite, sem preceder a chegada. Os horários operacionais usam a hora local da instalação, sem fuso; a auditoria usa UTC.</p>
+<h3>UC05 — Consultar dashboard e histórico</h3>
+<p><strong>Atores:</strong> todos, dentro das permissões. <strong>Requisitos:</strong> RF07, RF08; RNF03.</p>
+<ol>
+<li>Usuário escolhe início e fim de um período de até 12 meses de calendário, inclusive as datas extremas.</li>
+<li>Sistema filtra roteiros autorizados e agrega os tempos por dia, mês e endereço.</li>
+<li>Dashboard apresenta gráficos diários, mensais e por endereço no período, total, quantidade de roteiros, média e custo.</li>
+<li>Histórico apresenta roteiro, data, motorista, ordem, endereço, chegada, saída e tempo de cada parada.</li>
+</ol>
+<p>O gráfico por endereço mostra os sete maiores tempos; o histórico e o CSV contêm todas as paradas do período. Datas sem roteiro não são inventadas. Período invertido ou que alcance o aniversário de 12 meses da data inicial é rejeitado.</p>
+<h3>UC06 — Parametrizar e calcular custos e jornada</h3>
+<p><strong>Ator para edição:</strong> administrador. <strong>Consulta:</strong> todos, nos seus roteiros.<br>
+<strong>Requisitos:</strong> RF09, RF10, RF11; RN04, RN07.</p>
+<p>Administrador altera combustível, consumo padrão, adicional por km, jornada e posição de início da contagem. Sistema valida os valores, salva todos os parâmetros em uma transação e audita a mudança. O consumo específico do veículo é editado no cadastro do motorista; quando ausente, aplica-se o padrão.</p>
+<p><strong>Fórmulas:</strong></p>
+<ul>
+<li>Tempo do ponto = saída − chegada, em segundos, se o ponto está no intervalo de contagem e tem os dois horários.</li>
+<li>Tempo do roteiro = soma dos tempos contabilizados dos seus pontos.</li>
+<li>Percentual da jornada = tempo do roteiro ÷ (jornada em horas × 3.600) × 100.</li>
+<li>Custo por km = preço do combustível ÷ consumo em km/l + adicional por km.</li>
+<li>Custo estimado = distância × custo por km, arredondado a centavos apenas no resultado final.</li>
+</ul>
+<p><strong>Padrões:</strong> combustível R$ 6/l, consumo 12 km/l, adicional R$ 0/km, jornada 8 h/dia e contagem a partir do ponto 2. O percentual é por roteiro; não representa horas efetivamente trabalhadas. Os custos e tempos exibidos são recalculados com os parâmetros vigentes, não são cotações congeladas no passado.</p>
+<h3>UC07 — Exportar relatório</h3>
+<p><strong>Atores:</strong> todos, dentro das permissões. <strong>Requisito:</strong> RF12.</p>
+<p>Após selecionar o período, usuário solicita CSV. Sistema aplica a mesma autorização do painel e gera arquivo UTF-8 com separador ponto e vírgula. Cada linha corresponde a uma parada após a partida, com endereço, horários, tempo e indicadores do roteiro. Distância, custo total e percentual se repetem nas linhas de um mesmo roteiro; devem ser contabilizados uma vez por roteiro ao analisar o CSV.</p>
+<h3>UC08 — Administrar acessos e consultar auditoria</h3>
+<p><strong>Ator:</strong> administrador. <strong>Requisitos:</strong> RNF04, RNF05.</p>
+<p>Administrador cria gerentes e acessos ligados a profissionais cadastrados e consulta as últimas 200 operações. A auditoria persistida inclui instante, autor, entidade, identificador, ação, antes e depois. A interface limita a consulta recente; registros anteriores permanecem no banco. A configuração inicial cria o primeiro administrador e não pode ser repetida após sua criação.</p>
+<h2>4. Regras de negócio e rastreabilidade</h2>
+<table>
+<thead>
+<tr>
+<th>Regra</th>
+<th>Decisão de implementação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RN01</td>
+<td>Posição 1 nunca acumula tempo. Posição inicial configurável tem mínimo 2.</td>
+</tr>
+<tr>
+<td>RN02</td>
+<td>Diferença exata entre saída e chegada; cálculo em segundos.</td>
+</tr>
+<tr>
+<td>RN03</td>
+<td>Soma somente dos pontos contabilizados; registros incompletos contribuem com zero.</td>
+</tr>
+<tr>
+<td>RN04</td>
+<td>Jornada padrão de 8 horas, editável entre 0,1 e 24.</td>
+</tr>
+<tr>
+<td>RN05</td>
+<td>Roteiro referencia um motorista e uma data obrigatória.</td>
+</tr>
+<tr>
+<td>RN06</td>
+<td>Posições sequenciais com unicidade por roteiro; inclusão protegida por transação.</td>
+</tr>
+<tr>
+<td>RN07</td>
+<td>Distância multiplicada por combustível/consumo mais adicional por km.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Requisito</th>
+<th>Tela ou operação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RF01</td>
+<td>Criar conta → Motorista; Equipe e pontos → Novo/Editar motorista.</td>
+</tr>
+<tr>
+<td>RF02</td>
+<td>Criar conta → Gerente; administrador → Novo gerente.</td>
+</tr>
+<tr>
+<td>RF03</td>
+<td>Equipe e pontos → Novo/Editar ponto, com endereço e coordenadas.</td>
+</tr>
+<tr>
+<td>RF04</td>
+<td>Roteiros → Novo roteiro → Adicionar ao roteiro.</td>
+</tr>
+<tr>
+<td>RF05</td>
+<td>Roteiro → Chegada/Saída → Salvar horários/Agora.</td>
+</tr>
+<tr>
+<td>RF06</td>
+<td>Cálculo automático nas consultas de roteiro e painel.</td>
+</tr>
+<tr>
+<td>RF07</td>
+<td>Histórico → filtro do período e tabela com endereços.</td>
+</tr>
+<tr>
+<td>RF08</td>
+<td>Visão geral → gráficos por dia, mês e endereço no período.</td>
+</tr>
+<tr>
+<td>RF09</td>
+<td>Parâmetros de combustível e adicional; edição do consumo do motorista.</td>
+</tr>
+<tr>
+<td>RF10</td>
+<td>Parâmetros de jornada e posição inicial de contagem.</td>
+</tr>
+<tr>
+<td>RF11</td>
+<td>Detalhe do roteiro, painel e CSV → custo estimado.</td>
+</tr>
+<tr>
+<td>RF12</td>
+<td>Visão geral/Histórico → Exportar CSV.</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Diagramas de robustez</h2>
+<p>Os diagramas distinguem ator, interface (azul), controle (laranja) e entidade (verde). A interface chama o controlador, que valida permissões e regras antes de ler ou alterar entidades. Alterações de horários e pontos e sua auditoria são gravadas na mesma transação.</p>
+<div class="diagram-page"><img alt="Robustez da montagem e coleta" src="../diagramas/robustez-roteiro.svg" /></div>
+<div class="diagram-page"><img alt="Robustez das consultas e parâmetros" src="../diagramas/robustez-consultas.svg" /></div>
+<div class="diagram-page"><h2>6. Classes conceituais e persistência</h2><img alt="Classes conceituais" src="../diagramas/classes-conceituais.svg" /></div>
+<table>
+<thead>
+<tr>
+<th>Classe</th>
+<th>Papel e atributos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motorista</td>
+<td>Nome, telefone, documento único, veículo, consumo opcional, gerente responsável.</td>
+</tr>
+<tr>
+<td>Gerente</td>
+<td>Nome, telefone, e-mail, código de convite; gerencia zero ou mais motoristas.</td>
+</tr>
+<tr>
+<td>Usuário</td>
+<td>Nome, e-mail único, perfil, hash de senha; pode representar motorista ou gerente.</td>
+</tr>
+<tr>
+<td>Roteiro</td>
+<td>Data, motorista, distância; tempos e custos derivados.</td>
+</tr>
+<tr>
+<td>Ponto</td>
+<td>Endereço, latitude, longitude e proprietário gerente quando aplicável.</td>
+</tr>
+<tr>
+<td>Parada</td>
+<td>Associação Roteiro–Ponto, posição, chegada e saída; tempo derivado.</td>
+</tr>
+<tr>
+<td>Parâmetro</td>
+<td>Combustível, consumo padrão, adicional/km, jornada e posição inicial.</td>
+</tr>
+<tr>
+<td>Auditoria</td>
+<td>Instante, ator, entidade, ação, valores anteriores e novos.</td>
+</tr>
+</tbody>
+</table>
+<p>Um gerente tem 0..<em> motoristas e cada novo motorista tem 1 gerente. Um motorista realiza 0..</em> roteiros; cada roteiro tem 1 motorista. Um roteiro em montagem pode ter 0..<em> paradas; um roteiro utilizado na coleta tem pelo menos a partida e um destino. Cada parada referencia exatamente 1 ponto e 1 roteiro. Um ponto pode participar de 0..</em> paradas. Um usuário produz 0..* eventos de auditoria. Pontos compartilhados não têm proprietário gerente.</p>
+<p>SQLite guarda <code>drivers</code>, <code>managers</code>, <code>users</code>, <code>sessions</code>, <code>places</code>, <code>routes</code>, <code>stops</code>, <code>settings</code> e <code>audit</code>, com chaves estrangeiras, restrições de integridade, índices por data e ordem única. Horários ficam na associação <code>Parada</code> para que reutilizar um endereço não sobrescreva os horários de outro roteiro. Dados calculados são derivados sem substituir os registros originais. Mudanças de endereço refletem-se nas consultas atuais; o valor anterior fica na auditoria.</p>
+<h2>7. Requisitos não funcionais</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Medida e limite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNF01</td>
+<td>SQLite em arquivo local, persistência entre reinícios, chaves estrangeiras e auditoria preservada. Não existe exclusão de roteiros na interface.</td>
+</tr>
+<tr>
+<td>RNF02</td>
+<td>Layout com menus e formulários adaptados a telas pequenas; tabelas têm rolagem interna. Validação em navegador desktop e viewport móvel.</td>
+</tr>
+<tr>
+<td>RNF03</td>
+<td>Consulta do período busca parâmetros, pontos e roteiros em três consultas, evitando consulta adicional por roteiro. Teste anual exige resposta inferior a 3 segundos. A medição depende do volume e do equipamento.</td>
+</tr>
+<tr>
+<td>RNF04</td>
+<td>Autenticação por senha, PBKDF2 com salt, sessão expira em 12 horas, cookie HttpOnly e SameSite=Strict, autorização no servidor por perfil e equipe.</td>
+</tr>
+<tr>
+<td>RNF05</td>
+<td>Auditoria de edição de pontos, horários, motoristas e parâmetros; autoria e valores anterior e novo.</td>
+</tr>
+<tr>
+<td>RNF06</td>
+<td>Aviso de privacidade, coleta restrita aos campos da operação, separação de acesso e demonstração fictícia. Os procedimentos organizacionais de LGPD permanecem responsabilidade de uma eventual implantação real.</td>
+</tr>
+</tbody>
+</table>
+<p>O MVP não certifica conformidade jurídica com a LGPD. A organização de uma implantação real ainda precisa definir responsável, contato, finalidade e base aplicável, retenção, atendimento aos titulares e eliminação. O protótipo não possui recuperação de senha, portal de titulares, backups automáticos ou TLS. O servidor escuta somente em 127.0.0.1 para avaliação local.</p>
+<h2>8. Critérios de aceitação e demonstração</h2>
+<table>
+<thead>
+<tr>
+<th>Critério do PDF</th>
+<th>Evidência</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partida não computa tempo</td>
+<td>Demonstração registra 20 minutos na partida e mantém contribuição zero.</td>
+</tr>
+<tr>
+<td>Gráficos de dia, mês e período</td>
+<td>Dashboard apresenta os três recortes, com filtro e endereços.</td>
+</tr>
+<tr>
+<td>Tempo vinculado a endereço e horários</td>
+<td>Histórico e CSV trazem endereço, chegada e saída da parada.</td>
+</tr>
+<tr>
+<td>Parâmetros alterados sem código</td>
+<td>Administrador edita formulário; consultas recalculam os indicadores.</td>
+</tr>
+</tbody>
+</table>
+<p>Os roteiros da especificação têm A = 15 + 10 + 50 = <strong>75 minutos</strong>, B = 10 + 5 + 26 = <strong>41 minutos</strong> e C = 5 + 10 + 30 = <strong>45 minutos</strong>. O total é <strong>161 minutos</strong>. A demonstração cria esses registros na data de sua primeira execução, em banco separado, sem alterar o banco normal. As distâncias fictícias de A/B/C são 30/20/25 km; com os parâmetros padrão, o custo total é <strong>R$ 37,50</strong>.</p>
+<p>A suíte de testes cobre cadastro, autenticação, equipes, pontos, roteiros, horários inválidos, cálculos, alterações de consumo e parâmetros, CSV, auditoria e período anual. As instruções de execução e o roteiro da apresentação estão em <code>README.md</code> e <code>APRESENTACAO.md</code>.</p>
+<h2>9. Nome e campanha</h2>
+<p><strong>Nome:</strong> Parada. Curto, pronunciável e diretamente associado à medida central do produto.<br>
+<strong>Assinatura:</strong> Inteligência em cada rota.<br>
+<strong>Mensagem:</strong> “Cada minuto parado conta. Descubra onde sua rota perde tempo.”</p>
+<p>A campanha usa a pergunta “Sua rota tem pontos cegos?” e um gráfico dos 75 minutos do roteiro A para tornar visível o problema. O público são transportadoras e equipes de entrega urbana. A chamada é “Conheça o Parada. Planeje com dados.”</p>
+<p class="campaign-page"><img alt="Cartaz de divulgação" src="../campanha/cartaz.svg" /></p>
+<p>O plano com público, canais, legenda e indicadores está em <code>campanha/PLANO.md</code>. A peça vetorial e seu PDF estão prontos para apresentação. Não houve publicação externa.</p></body></html>

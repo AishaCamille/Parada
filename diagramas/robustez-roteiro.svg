@@ -6,7 +6,7 @@
 <text x="54" y="91" fill="#6d817a" font-family="Arial,sans-serif" font-size="14" font-weight="500" text-anchor="start">Ator → interface → controle → entidades persistidas</text>
 <rect x="55" y="260" width="195" height="85" rx="13" fill="#e8f5ed" stroke="#087f63" stroke-width="1.5"/>
 <text x="71" y="289" fill="#087f63" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Gerente / Motorista</text>
-<text x="71" y="313" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">inicia ou atualiza roteiro</text>
+<text x="71" y="313" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">gestão / coleta autorizada</text>
 <rect x="320" y="145" width="220" height="84" rx="13" fill="#eaf2fb" stroke="#2f6399" stroke-width="1.5"/>
 <text x="336" y="174" fill="#2f6399" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Tela de roteiros</text>
 <text x="336" y="198" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">data, motorista, pontos</text>

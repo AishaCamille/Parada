@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc">
+<title id="title">Parada — Cada minuto parado conta</title><desc id="desc">Campanha para equipes de entrega. Exemplo do roteiro A: Rua Peru 15 minutos, Rua X 10 minutos, Avenida João César 50 minutos. Total 75 minutos parado.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#092c2b"/><stop offset="1" stop-color="#064e40"/></linearGradient></defs>
+<rect width="1080" height="1350" fill="url(#bg)"/>
+<circle cx="1060" cy="50" r="290" fill="#36b996" opacity=".07"/>
+<path d="M790 180 C1060 320 780 410 1010 580" fill="none" stroke="#50d0a8" opacity=".18" stroke-width="4" stroke-dasharray="10 15"/>
+<g font-family="Arial,sans-serif">
+<rect x="84" y="78" width="60" height="60" rx="16" fill="#36b996"/><text x="104" y="122" fill="#092c2b" font-size="44" font-weight="bold">P</text>
+<text x="166" y="123" fill="white" font-size="55" font-weight="bold">parada<tspan fill="#4ed6ae">.</tspan></text>
+<text x="86" y="210" fill="#79d6ba" font-size="20" letter-spacing="5">INTELIGÊNCIA EM CADA ROTA</text>
+<text x="80" y="330" fill="white" font-size="83" font-weight="bold">Sua rota tem</text><text x="80" y="425" fill="white" font-size="83" font-weight="bold">pontos cegos?</text>
+<text x="86" y="497" fill="#bddad1" font-size="28">Descubra onde sua equipe fica parada.</text>
+<rect x="80" y="560" width="920" height="430" rx="26" fill="#fff"/>
+<text x="120" y="617" fill="#143a32" font-size="25" font-weight="bold">CADA ENDEREÇO CONTA UMA HISTÓRIA</text>
+<text x="120" y="651" fill="#728780" font-size="19">Roteiro A · exemplo de demonstração</text>
+<text x="120" y="719" fill="#314442" font-size="23">Rua Peru, 55</text><rect x="450" y="696" width="132" height="27" rx="8" fill="#36b996"/><text x="905" y="719" text-anchor="end" fill="#143a32" font-size="24" font-weight="bold">15 min</text>
+<text x="120" y="780" fill="#314442" font-size="23">Rua X, 5</text><rect x="450" y="757" width="88" height="27" rx="8" fill="#36b996"/><text x="905" y="780" text-anchor="end" fill="#143a32" font-size="24" font-weight="bold">10 min</text>
+<text x="120" y="841" fill="#314442" font-size="23">Av. João César</text><rect x="450" y="818" width="350" height="27" rx="8" fill="#087c67"/><text x="905" y="841" text-anchor="end" fill="#143a32" font-size="24" font-weight="bold">50 min</text>
+<path d="M120 870 H960" stroke="#e1ebe7"/><text x="120" y="924" fill="#087c67" font-size="35" font-weight="bold">75 minutos parado.</text><text x="120" y="958" fill="#728780" font-size="18">A partida não entra na conta. Os gargalos aparecem.</text>
+<text x="86" y="1061" fill="white" font-size="39" font-weight="bold">Cada minuto parado conta.</text>
+<text x="86" y="1110" fill="#bddad1" font-size="26">Registre horários. Visualize tempos. Estime custos.</text>
+<rect x="80" y="1163" width="660" height="80" rx="17" fill="#42d0a5"/><text x="118" y="1215" fill="#093c31" font-size="29" font-weight="bold">Conheça o Parada. Planeje com dados. →</text>
+<text x="86" y="1297" fill="#81aa9d" font-size="18">Para transportadoras e equipes de entregas urbanas.</text>
+</g></svg>

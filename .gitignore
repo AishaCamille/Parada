@@ -6,3 +6,6 @@ test-*.sqlite3*
 tmp*/
 .pdfdeps/
 write_probe.txt
+*.zip
+node_modules/
+.venv/

@@ -1,0 +1,29 @@
+PARADA — TRABALHO 2
+
+Entrega pelo repositório: https://github.com/AishaCamille/Parada
+Código e documentos estão no repositório. Não é necessário enviar ZIP.
+
+1. Preencha os nomes dos integrantes em PROJETO_PRELIMINAR.md.
+   A versão final em PDF está em entrega/Projeto-Preliminar-Parada.pdf.
+   A versão HTML pode ser aberta no navegador e impressa em PDF.
+
+2. Para demonstrar o sistema, entre na pasta Parada e execute:
+   Linux:      ./carregar_linux.sh
+   macOS:      python3 demo.py --serve
+   Windows:    python demo.py --serve
+   Abra http://127.0.0.1:8000
+   Conta: admin@parada.test | Senha fictícia: Parada-demo-123
+
+3. Para usar um banco normal vazio, execute ./carregar_linux.sh --normal ou server.py/iniciar.bat.
+   A demonstração e o banco normal ficam separados.
+
+4. Entregáveis:
+   - Código do MVP e testes;
+   - Projeto preliminar em Markdown, HTML e PDF;
+   - Casos de uso, robustez e classes conceituais, SVG e PDF;
+   - Campanha: plano, cartaz SVG, PNG e PDF;
+   - Roteiro de apresentação, relatório de validação e capturas desktop/móvel.
+
+Requisitos: Python 3.10+. Sem instalação de dependências para executar o MVP.
+Os dados demonstrativos são fictícios. Veja README.md para instruções completas
+ e PROJETO_PRELIMINAR.md para limites e pendências organizacionais.

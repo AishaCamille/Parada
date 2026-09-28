@@ -7,7 +7,7 @@
 <line x1="300" y1="215" x2="445" y2="215" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
 <text x="348" y="202" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 → 0..*</text>
 <line x1="730" y1="215" x2="865" y2="215" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="765" y="202" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 → 1..*</text>
+<text x="765" y="202" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 → 0..*</text>
 <line x1="1080" y1="320" x2="1080" y2="430" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
 <text x="1093" y="390" fill="#263d37" font-family="Arial,sans-serif" font-size="12" font-weight="500" text-anchor="start">1 ponto / parada</text>
 <line x1="185" y1="485" x2="185" y2="330" stroke="#7aa69a" stroke-width="2" marker-end="url(#arrow)"/>
@@ -43,6 +43,7 @@
 <text x="881" y="459" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Ponto</text>
 <text x="881" y="483" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, endereço</text>
 <text x="881" y="503" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">latitude, longitude</text>
+<text x="881" y="523" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">gerente proprietário (opcional)</text>
 <rect x="70" y="430" width="240" height="155" rx="13" fill="#f2f8f5" stroke="#2e715c" stroke-width="1.5"/>
 <text x="86" y="459" fill="#2e715c" font-family="Arial,sans-serif" font-size="16" font-weight="700" text-anchor="start">Usuário</text>
 <text x="86" y="483" fill="#50655d" font-family="Arial,sans-serif" font-size="13" font-weight="500" text-anchor="start">id, nome, e-mail</text>

@@ -1,8 +1,8 @@
 """Fluxos de ponta a ponta da API, com banco temporário."""
 import http.client
 import json
-import secrets
 import threading
+import tempfile
 import time
 import unittest
 from datetime import date, timedelta
@@ -14,8 +14,8 @@ import server
 class ApiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        server.DB_PATH = server.ROOT / f"test-{secrets.token_hex(8)}.sqlite3"
-        server.init_db()
+        cls.original_db = server.DB_PATH
+        cls.temp_dir = tempfile.TemporaryDirectory(prefix="parada-tests-")
         cls.httpd = server.ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
         cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.thread.start()
@@ -24,10 +24,12 @@ class ApiTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.httpd.shutdown()
         cls.httpd.server_close()
-        for suffix in ("", "-wal", "-shm"):
-            path = Path(str(server.DB_PATH) + suffix)
-            if path.exists():
-                path.unlink()
+        server.DB_PATH = cls.original_db
+        cls.temp_dir.cleanup()
+
+    def setUp(self):
+        server.DB_PATH = Path(self.temp_dir.name) / f"{self._testMethodName}.sqlite3"
+        server.init_db()
 
     def request(self, method, path, body=None, cookie=None):
         conn = http.client.HTTPConnection("127.0.0.1", self.httpd.server_port)
@@ -124,10 +126,10 @@ class ApiTests(unittest.TestCase):
                 con.execute("INSERT INTO stops(route_id,place_id,position,arrival,departure) VALUES (?,?,?,?,?)",(route_id,second["id"],2,day+"T10:00:00",day+"T10:10:00"))
             con.commit()
         began=time.perf_counter()
-        status, year_data, _ = self.request("GET", "/api/dashboard?start=2025-09-24&end=2026-09-24", cookie=cookie)
+        status, year_data, _ = self.request("GET", "/api/dashboard?start=2025-09-24&end=2026-09-23", cookie=cookie)
         elapsed=time.perf_counter()-began
         self.assertEqual(status, 200)
-        self.assertEqual(len(year_data["routes"]), 367)
+        self.assertEqual(len(year_data["routes"]), 365)
         self.assertLess(elapsed, 3, f"Consulta de 12 meses levou {elapsed:.2f}s")
 
 
@@ -151,6 +153,10 @@ class ApiTests(unittest.TestCase):
         driver_fields = {"document":"PUBLIC1", "vehicle":"Van", "invite_code":code}
         self.assertEqual(register("driver", "driver1@example.test", **{**driver_fields,"invite_code":"invalid"})[0],400)
         self.assertEqual(register("driver", "driver1@example.test", **driver_fields)[0],201)
+        self.assertTrue(self.request('GET','/api/setup')[1]['needs_setup'])
+        self.assertEqual(self.request('POST','/api/setup',{'name':'Admin','email':'admin@example.test','password':password})[0],201)
+        self.assertFalse(self.request('GET','/api/setup')[1]['needs_setup'])
+        self.assertEqual(self.request('POST','/api/setup',{'name':'Outro','email':'outro@example.test','password':password})[0],409)
         driver_cookie, driver = login("driver1@example.test")
         self.assertEqual(driver["team"]["name"], manager["name"])
         self.assertNotIn("invite_code",driver["team"])
@@ -179,6 +185,67 @@ class ApiTests(unittest.TestCase):
         self.assertNotEqual(new_cookie,driver_cookie)
         server.init_db()
         self.assertEqual(self.request("GET", "/api/me", cookie=manager_cookie)[1]["team"]["invite_code"],code)
+
+
+    def test_vehicle_updates_and_place_isolation(self):
+        password='senha-teste-123'
+        cookies=[]
+        for i in (1,2):
+            email=f'gestor{i}@example.test'
+            self.assertEqual(self.request('POST','/api/register',{'role':'manager','name':f'Gestor {i}','email':email,'phone':'000','password':password})[0],201)
+            cookies.append(self.request('POST','/api/login',{'email':email,'password':password})[2].split(';',1)[0])
+        owner,other=cookies
+        fields={'name':'Motorista fictício','phone':'000','document':'DOC-EDIT','vehicle':'Van','km_per_liter':12}
+        _,driver,_=self.request('POST','/api/drivers',fields,owner)
+        _,place,_=self.request('POST','/api/places',{'address':'Ponto privado','latitude':-19,'longitude':-44},owner)
+        self.assertEqual(self.request('GET','/api/places',cookie=other)[1],[])
+        self.assertEqual(self.request('PATCH',f"/api/places/{place['id']}",{'address':'Tentativa'},other)[0],403)
+        self.assertEqual(self.request('PATCH',f"/api/drivers/{driver['id']}",{**fields,'km_per_liter':20},other)[0],403)
+        _,route,_=self.request('POST','/api/routes',{'service_date':'2026-09-28','driver_id':driver['id'],'distance_km':100},owner)
+        self.assertEqual(route['estimated_cost'],50)
+        status,updated,_=self.request('PATCH',f"/api/drivers/{driver['id']}",{**fields,'km_per_liter':20},owner)
+        self.assertEqual(status,200)
+        self.assertEqual(updated['km_per_liter'],20)
+        self.assertEqual(self.request('GET',f"/api/routes/{route['id']}",cookie=owner)[1]['estimated_cost'],30)
+        self.assertEqual(self.request('PATCH',f"/api/drivers/{driver['id']}",{**fields,'km_per_liter':0},owner)[0],400)
+        _,other_driver,_=self.request('POST','/api/drivers',{**fields,'document':'OTHER'},other)
+        _,other_route,_=self.request('POST','/api/routes',{'service_date':'2026-09-28','driver_id':other_driver['id'],'distance_km':1},other)
+        self.assertEqual(self.request('POST',f"/api/routes/{other_route['id']}/stops",{'place_id':place['id']},other)[0],403)
+        self.assertEqual(self.request('POST',f"/api/routes/{route['id']}/stops",{'place_id':place['id']+0.5},owner)[0],400)
+        self.assertEqual(self.request('POST','/api/places',{'address':None},owner)[0],400)
+
+    def test_period_boundaries_and_batch_queries(self):
+        for start,end in [('2025-01-01','2025-12-31'),('2024-01-01','2024-12-31'),('2024-02-29','2025-02-27')]:
+            self.assertEqual(server.period({'start':[start],'end':[end]}),(start,end))
+        for start,end in [('2025-01-01','2026-01-01'),('2024-02-29','2025-02-28'),('2026-09-28','2026-09-27')]:
+            with self.assertRaises(server.ApiError): server.period({'start':[start],'end':[end]})
+        with server.db() as con:
+            statements=[]
+            con.set_trace_callback(statements.append)
+            server.period_data(con,{'role':'admin'},'2026-01-01','2026-12-31')
+            self.assertEqual(len([s for s in statements if s.startswith('SELECT')]),3)
+
+    def test_statement_examples_and_demo_preservation(self):
+        import demo
+        demo_path=Path(self.temp_dir.name)/'demo.sqlite3'
+        self.assertTrue(demo.create_demo(demo_path,date(2026,9,28)))
+        with server.db() as con:
+            data=server.period_data(con,{'role':'admin'},'2026-09-28','2026-09-28')
+            self.assertEqual([r['stopped_seconds']//60 for r in data['routes']],[75,41,45])
+            self.assertEqual(data['total_seconds'],161*60)
+            self.assertEqual(data['total_cost'],37.5)
+            self.assertTrue(all(r['stops'][0]['stopped_seconds']==0 for r in data['routes']))
+        self.assertFalse(demo.create_demo(demo_path))
+        status,_,cookie=self.request('POST','/api/login',{'email':'admin@parada.test','password':demo.PASSWORD})
+        self.assertEqual(status,200)
+        cookie=cookie.split(';',1)[0]
+        status,_,_=self.request('PUT','/api/settings',{'fuel_price':6,'default_km_per_liter':12,'extra_cost_per_km':0,'workday_hours':8,'count_from_position':3},cookie)
+        self.assertEqual(status,200)
+        _,data,_=self.request('GET','/api/dashboard?start=2026-09-28&end=2026-09-28',cookie=cookie)
+        self.assertEqual(data['total_seconds'],131*60)
+        self.assertEqual(self.request('PATCH',f"/api/stops/{data['routes'][0]['stops'][1]['id']}",{'arrival':'2026-09-27T08:00'},cookie)[0],400)
+        _,audit,_=self.request('GET','/api/audit',cookie=cookie)
+        self.assertTrue(any(x['entity']=='settings' for x in audit))
 
 
 if __name__ == "__main__":

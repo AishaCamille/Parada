@@ -89,6 +89,8 @@ def init_db():
         """)
         if "invite_code" not in {r["name"] for r in con.execute("PRAGMA table_info(managers)")}:
             con.execute("ALTER TABLE managers ADD COLUMN invite_code TEXT")
+        if "manager_id" not in {r["name"] for r in con.execute("PRAGMA table_info(places)")}:
+            con.execute("ALTER TABLE places ADD COLUMN manager_id INTEGER REFERENCES managers(id)")
         for manager in con.execute("SELECT id FROM managers WHERE invite_code IS NULL").fetchall():
             con.execute("UPDATE managers SET invite_code=? WHERE id=?", (secrets.token_hex(8).upper(), manager["id"]))
         con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_manager_invite ON managers(invite_code)")
@@ -121,10 +123,10 @@ def verify_password(password, stored):
 
 
 def required(body, key):
-    value = str(body.get(key, "")).strip()
-    if not value:
+    value = body.get(key)
+    if not isinstance(value, str) or not value.strip():
         raise ApiError(f"Campo obrigatório: {key}.")
-    return value
+    return value.strip()
 
 
 def number(body, key, minimum=None, maximum=None, optional=False):
@@ -142,7 +144,10 @@ def number(body, key, minimum=None, maximum=None, optional=False):
 
 def integer(body, key, minimum=1):
     try:
-        value = int(body.get(key))
+        raw = body.get(key)
+        value = int(raw)
+        if isinstance(raw, bool) or float(raw) != value:
+            raise ValueError
     except (ValueError, TypeError):
         raise ApiError(f"Inteiro inválido: {key}.")
     if value < minimum:
@@ -196,10 +201,13 @@ def route_allowed(user, route, con):
 def route_details(con, route_id, user):
     route = con.execute("SELECT r.*,d.name AS driver_name,d.km_per_liter FROM routes r JOIN drivers d ON d.id=r.driver_id WHERE r.id=?", (route_id,)).fetchone()
     route_allowed(user, route, con)
-    item = row_dict(route)
     cfg = settings(con)
     stops = [dict(x) for x in con.execute("""SELECT s.*,p.address,p.latitude,p.longitude
         FROM stops s JOIN places p ON p.id=s.place_id WHERE s.route_id=? ORDER BY s.position""", (route_id,))]
+    return calculate_route(row_dict(route), stops, cfg)
+
+
+def calculate_route(item, stops, cfg):
     total = 0
     for stop in stops:
         seconds = 0
@@ -208,32 +216,45 @@ def route_details(con, route_id, user):
         stop["stopped_seconds"] = seconds
         total += seconds
     rate = item["km_per_liter"] or cfg["default_km_per_liter"]
+    item["effective_km_per_liter"] = rate
+    item["count_from_position"] = int(cfg["count_from_position"])
     item["stops"] = stops
     item["stopped_seconds"] = total
     item["workday_percent"] = round(total / (cfg["workday_hours"] * 3600) * 100, 1)
     item["cost_per_km"] = round(cfg["fuel_price"] / rate + cfg["extra_cost_per_km"], 4)
-    item["estimated_cost"] = round(item["distance_km"] * item["cost_per_km"], 2)
+    item["estimated_cost"] = round(item["distance_km"] * (cfg["fuel_price"] / rate + cfg["extra_cost_per_km"]), 2)
     return item
 
 
 def period(query):
     start = service_date(query.get("start", [date.today().replace(day=1).isoformat()])[0])
     end = service_date(query.get("end", [date.today().isoformat()])[0])
-    if end < start or (date.fromisoformat(end) - date.fromisoformat(start)).days > 366:
+    first = date.fromisoformat(start)
+    try:
+        anniversary = first.replace(year=first.year + 1)
+    except ValueError:
+        anniversary = first.replace(year=first.year + 1, day=28)
+    if end < start or date.fromisoformat(end) >= anniversary:
         raise ApiError("Escolha um período de até 12 meses, com início anterior ao fim.")
     return start, end
 
 
 def period_data(con, user, start, end):
-    sql = "SELECT r.id FROM routes r JOIN drivers d ON d.id=r.driver_id WHERE r.service_date BETWEEN ? AND ?"
+    source = " FROM routes r JOIN drivers d ON d.id=r.driver_id WHERE r.service_date BETWEEN ? AND ?"
     args = [start, end]
     if user["role"] == "driver":
-        sql += " AND r.driver_id=?"
+        source += " AND r.driver_id=?"
         args.append(user["driver_id"])
     if user["role"] == "manager":
-        sql += " AND d.manager_id=?"
+        source += " AND d.manager_id=?"
         args.append(user["manager_id"])
-    routes = [route_details(con, x["id"], user) for x in con.execute(sql + " ORDER BY r.service_date,r.id", args)]
+    cfg = settings(con)
+    stops_by_route = {}
+    for stop in con.execute("SELECT s.*,p.address,p.latitude,p.longitude FROM stops s JOIN places p ON p.id=s.place_id "
+                            "WHERE s.route_id IN (SELECT r.id" + source + ") ORDER BY s.route_id,s.position", args):
+        stops_by_route.setdefault(stop["route_id"], []).append(dict(stop))
+    routes = [calculate_route(dict(row), stops_by_route.get(row["id"], []), cfg)
+              for row in con.execute("SELECT r.*,d.name AS driver_name,d.km_per_liter" + source + " ORDER BY r.service_date,r.id", args)]
     daily, monthly, places = {}, {}, {}
     history = []
     for route in routes:
@@ -249,7 +270,7 @@ def period_data(con, user, start, end):
                             "departure": stop["departure"], "stopped_seconds": stop["stopped_seconds"]})
     return {"routes": routes, "history": history, "daily": daily, "monthly": monthly,
             "places": places, "total_seconds": sum(daily.values()), "total_cost": round(sum(x["estimated_cost"] for x in routes), 2),
-            "workday_hours": settings(con)["workday_hours"]}
+            "workday_hours": cfg["workday_hours"]}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -258,6 +279,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
+        if content_type.startswith("text/csv"):
+            self.send_header("Content-Disposition", 'attachment; filename="parada-relatorio.csv"')
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:")
@@ -296,9 +319,9 @@ class Handler(BaseHTTPRequestHandler):
     def handle_request(self, method):
         url = urlsplit(self.path)
         path, query = url.path, parse_qs(url.query)
-        if method == "GET" and path in ("/", "/app.js", "/style.css"):
-            file = ROOT / {"/": "index.html", "/app.js": "app.js", "/style.css": "style.css"}[path]
-            mime = "text/html" if path == "/" else "text/javascript" if path == "/app.js" else "text/css"
+        if method == "GET" and path in ("/", "/app.js", "/style.css", "/privacidade"):
+            file = ROOT / {"/": "index.html", "/app.js": "app.js", "/style.css": "style.css", "/privacidade": "privacidade.html"}[path]
+            mime = "text/html" if path in ("/", "/privacidade") else "text/javascript" if path == "/app.js" else "text/css"
             self.respond(file.read_bytes(), content_type=mime + "; charset=utf-8")
             return
         if not path.startswith("/api/"):
@@ -338,13 +361,16 @@ class Handler(BaseHTTPRequestHandler):
                 con.commit()
                 self.respond({"id": user_id}, 201); return
             if path == "/api/setup" and method == "GET":
-                self.respond({"needs_setup": con.execute("SELECT NOT EXISTS(SELECT 1 FROM users)").fetchone()[0] == 1})
+                self.respond({"needs_setup": con.execute("SELECT NOT EXISTS(SELECT 1 FROM users WHERE role='admin')").fetchone()[0] == 1})
                 return
             if path == "/api/setup" and method == "POST":
-                if con.execute("SELECT 1 FROM users LIMIT 1").fetchone():
+                con.execute("BEGIN IMMEDIATE")
+                if con.execute("SELECT 1 FROM users WHERE role='admin' LIMIT 1").fetchone():
                     raise ApiError("Configuração inicial já concluída.", 409)
                 cur = con.execute("INSERT INTO users(name,email,password_hash,role) VALUES (?,?,?,'admin')",
                                   (required(body, "name"), required(body, "email").lower(), hash_password(required(body, "password"))))
+                audit(con, {"id": cur.lastrowid}, "user", cur.lastrowid, "setup", after={"role": "admin"})
+                con.commit()
                 self.respond({"id": cur.lastrowid}, 201)
                 return
             if path == "/api/login" and method == "POST":
@@ -414,22 +440,39 @@ class Handler(BaseHTTPRequestHandler):
                 if method == "GET":
                     if role=="driver":
                         rows=con.execute("SELECT DISTINCT p.* FROM places p JOIN stops s ON s.place_id=p.id JOIN routes r ON r.id=s.route_id WHERE r.driver_id=? ORDER BY p.address",(user["driver_id"],))
+                    elif role == "manager":
+                        rows=con.execute("SELECT * FROM places WHERE manager_id=? OR manager_id IS NULL ORDER BY address", (user["manager_id"],))
                     else:
                         rows=con.execute("SELECT * FROM places ORDER BY address")
                     self.respond([dict(x) for x in rows]); return
                 if method == "POST" and role in ("admin","manager"):
-                    cur = con.execute("INSERT INTO places(address,latitude,longitude) VALUES (?,?,?)",
-                                      (required(body,"address"),number(body,"latitude",-90,90,True),number(body,"longitude",-180,180,True)))
+                    cur = con.execute("INSERT INTO places(address,latitude,longitude,manager_id) VALUES (?,?,?,?)",
+                                      (required(body,"address"),number(body,"latitude",-90,90,True),number(body,"longitude",-180,180,True),user["manager_id"]))
                     audit(con,user,"place",cur.lastrowid,"create",after=body)
                     self.respond({"id":cur.lastrowid},201); return
             parts=path.strip("/").split("/")
+            if len(parts)==3 and parts[:2]==["api","drivers"] and parts[2].isdigit() and method=="PATCH" and role in ("admin","manager"):
+                driver_id=int(parts[2])
+                con.execute("BEGIN IMMEDIATE")
+                old=con.execute("SELECT * FROM drivers WHERE id=?",(driver_id,)).fetchone()
+                if not old: raise ApiError("Motorista não encontrado.",404)
+                if role=="manager" and old["manager_id"]!=user["manager_id"]: raise ApiError("Acesso negado.",403)
+                con.execute("UPDATE drivers SET name=?,phone=?,document=?,vehicle=?,km_per_liter=? WHERE id=?",
+                            (required(body,"name"),required(body,"phone"),required(body,"document"),required(body,"vehicle"),number(body,"km_per_liter",0.01,optional=True),driver_id))
+                new=row_dict(con.execute("SELECT * FROM drivers WHERE id=?",(driver_id,)).fetchone())
+                audit(con,user,"driver",driver_id,"update",row_dict(old),new)
+                con.commit()
+                self.respond(new); return
             if len(parts)==3 and parts[:2]==["api","places"] and parts[2].isdigit() and method=="PATCH" and role in ("admin","manager"):
+                con.execute("BEGIN IMMEDIATE")
                 place_id=int(parts[2]); old=con.execute("SELECT * FROM places WHERE id=?",(place_id,)).fetchone()
                 if not old: raise ApiError("Ponto não encontrado.",404)
+                if role=="manager" and old["manager_id"]!=user["manager_id"]: raise ApiError("Este ponto só pode ser editado pelo responsável ou administrador.",403)
                 updated=(required(body,"address"),number(body,"latitude",-90,90,True),number(body,"longitude",-180,180,True),place_id)
                 con.execute("UPDATE places SET address=?,latitude=?,longitude=? WHERE id=?",updated)
                 new=row_dict(con.execute("SELECT * FROM places WHERE id=?",(place_id,)).fetchone())
                 audit(con,user,"place",place_id,"update",row_dict(old),new)
+                con.commit()
                 self.respond(new); return
             if path == "/api/routes":
                 if method == "GET":
@@ -454,13 +497,18 @@ class Handler(BaseHTTPRequestHandler):
                     audit(con,user,"route",route_id,"update",before,row_dict(con.execute("SELECT * FROM routes WHERE id=?",(route_id,)).fetchone()))
                     self.respond(route_details(con,route_id,user)); return
                 if len(parts)==4 and parts[3]=="stops" and method=="POST" and role in ("admin","manager"):
+                    con.execute("BEGIN IMMEDIATE")
                     place_id=integer(body,"place_id")
-                    if not con.execute("SELECT 1 FROM places WHERE id=?",(place_id,)).fetchone(): raise ApiError("Ponto não encontrado.")
+                    place=con.execute("SELECT * FROM places WHERE id=?",(place_id,)).fetchone()
+                    if not place: raise ApiError("Ponto não encontrado.")
+                    if role=="manager" and place["manager_id"] not in (None,user["manager_id"]): raise ApiError("Acesso negado.",403)
                     next_pos=con.execute("SELECT COALESCE(MAX(position),0)+1 FROM stops WHERE route_id=?",(route_id,)).fetchone()[0]
                     cur=con.execute("INSERT INTO stops(route_id,place_id,position) VALUES (?,?,?)",(route_id,place_id,next_pos))
                     audit(con,user,"stop",cur.lastrowid,"create",after={"route_id":route_id,"place_id":place_id,"position":next_pos})
+                    con.commit()
                     self.respond(route_details(con,route_id,user),201); return
             if len(parts)==3 and parts[:2]==["api","stops"] and parts[2].isdigit() and method=="PATCH":
+                con.execute("BEGIN IMMEDIATE")
                 stop_id=int(parts[2]); stop=con.execute("SELECT * FROM stops WHERE id=?",(stop_id,)).fetchone()
                 if not stop: raise ApiError("Parada não encontrada.",404)
                 route=con.execute("SELECT * FROM routes WHERE id=?",(stop["route_id"],)).fetchone()
@@ -474,14 +522,21 @@ class Handler(BaseHTTPRequestHandler):
                 before=row_dict(stop)
                 con.execute("UPDATE stops SET arrival=?,departure=? WHERE id=?",(arrival,departure,stop_id))
                 audit(con,user,"stop",stop_id,"update",before,row_dict(con.execute("SELECT * FROM stops WHERE id=?",(stop_id,)).fetchone()))
+                con.commit()
                 self.respond(route_details(con,route["id"],user)); return
             if path in ("/api/dashboard","/api/export") and method=="GET":
                 start,end=period(query); data=period_data(con,user,start,end)
                 if path=="/api/dashboard": self.respond(data); return
                 out=io.StringIO(); writer=csv.writer(out,delimiter=";")
-                writer.writerow(["Data","Roteiro","Motorista","Ordem","Endereço","Chegada","Saída","Tempo parado (segundos)"])
+                writer.writerow(["Data","Roteiro","Motorista","Ordem","Endereço","Chegada","Saída","Tempo parado (segundos)",
+                                 "Distância do roteiro (km)","Consumo (km/l)","Custo por km (R$)","Custo do roteiro (R$)","Tempo total do roteiro (segundos)","Jornada parada (%)"])
+                routes_by_id={r["id"]:r for r in data["routes"]}
                 for h in data["history"]:
-                    writer.writerow([h[k] for k in ("service_date","route_id","driver_name","position","address","arrival","departure","stopped_seconds")])
+                    route=routes_by_id[h["route_id"]]
+                    cells=[h[k] for k in ("service_date","route_id","driver_name","position","address","arrival","departure","stopped_seconds")]
+                    cells += [route[k] for k in ("distance_km","effective_km_per_liter","cost_per_km","estimated_cost","stopped_seconds","workday_percent")]
+                    # Campos livres são texto, inclusive em planilhas que interpretam fórmulas.
+                    writer.writerow(["'"+value if isinstance(value,str) and value.lstrip().startswith(("=","+","-","@")) else value for value in cells])
                 content="\ufeff"+out.getvalue()
                 self.respond(content.encode("utf-8"),content_type="text/csv; charset=utf-8"); return
             if path=="/api/audit" and method=="GET" and role=="admin":
