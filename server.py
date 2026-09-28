@@ -303,8 +303,13 @@ class Handler(BaseHTTPRequestHandler):
             return
         if not path.startswith("/api/"):
             raise ApiError("Não encontrado.", 404)
-        body = self.body() if method in ("POST", "PUT", "PATCH") else {}
+        body = self.body() if method in ("POST", "PUT", "PATCH") and path != "/api/logout" else {}
         with db() as con:
+            if path == "/api/logout" and method == "POST":
+                cookie = SimpleCookie(); cookie.load(self.headers.get("Cookie", ""))
+                if "parada_session" in cookie:
+                    con.execute("DELETE FROM sessions WHERE token_hash=?", (hashlib.sha256(cookie["parada_session"].value.encode()).hexdigest(),))
+                self.respond({"ok": True}, cookie="parada_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"); return
             if path == "/api/register" and method == "POST":
                 new_role = required(body, "role")
                 if new_role not in ("driver", "manager"):
@@ -360,11 +365,6 @@ class Handler(BaseHTTPRequestHandler):
                 elif role == "driver":
                     user["team"] = row_dict(con.execute("SELECT m.name FROM managers m JOIN drivers d ON d.manager_id=m.id WHERE d.id=?", (user["driver_id"],)).fetchone())
                 self.respond(user); return
-            if path == "/api/logout" and method == "POST":
-                cookie = SimpleCookie(); cookie.load(self.headers.get("Cookie", ""))
-                if "parada_session" in cookie:
-                    con.execute("DELETE FROM sessions WHERE token_hash=?", (hashlib.sha256(cookie["parada_session"].value.encode()).hexdigest(),))
-                self.respond({"ok": True}, cookie="parada_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"); return
             if path == "/api/settings":
                 if method == "GET": self.respond(settings(con)); return
                 if method == "PUT" and role == "admin":

@@ -21,7 +21,8 @@ const canManage=()=>state.user.role!=='driver';
 const isAdmin=()=>state.user.role==='admin';
 let needsSetup = false;
 function showAuth(register=false, setup=false){
-  state.user=null;
+  Object.assign(state,{user:null,page:'dashboard',routes:[],drivers:[],managers:[],places:[],settings:{},detail:null});
+  $('.sidebar').classList.remove('open');
   $('#app').hidden=true;$('#content').innerHTML='';$('#auth').hidden=false;
   const form=$('#auth-form');form.reset();form.dataset.mode=setup?'setup':register?'register':'login';
   $('#auth-title').textContent=setup?'Administrador inicial':register?'Crie sua conta':'Bem-vindo de volta';
@@ -49,14 +50,24 @@ $('#register-tab').onclick=()=>showAuth(true);
 $('#setup-link').onclick=()=>showAuth(false,true);
 function showApp(){
   $('#auth').hidden=true;$('#app').hidden=false;
-  $('#account').innerHTML=`<div class="account"><span class="avatar">${esc(state.user.name[0].toUpperCase())}</span><span><strong>${esc(state.user.name)}</strong><small>${{admin:'Administrador',manager:'Gerente',driver:'Motorista'}[state.user.role]}</small></span><button id="logout" title="Sair" aria-label="Sair">↪</button></div>`;
-  $('#logout').onclick=async()=>{try{await api('/logout',{method:'POST'});showAuth()}catch(err){toast(err.message,true)}};
+  $('#account').innerHTML=`<div class="account"><span class="avatar">${esc(state.user.name[0].toUpperCase())}</span><span><strong>${esc(state.user.name)}</strong><small>${{admin:'Administrador',manager:'Gerente',driver:'Motorista'}[state.user.role]}</small></span></div><button id="logout" class="button logout-button" type="button">Sair da conta</button>`;
+  $('#logout').onclick=logout;
+  $('#logout-top').onclick=logout;
   document.querySelector('[data-page="people"]').hidden=!canManage();
   document.querySelector('[data-page="settings"]').hidden=!isAdmin();document.querySelector('[data-page="audit"]').hidden=!isAdmin();
   document.querySelector('[data-page="dashboard"]').textContent=canManage()?'▦ Visão geral':'▦ Meus indicadores';
   document.querySelector('[data-page="routes"]').textContent=canManage()?'⌁ Roteiros':'⌁ Meus roteiros';
   $('.side-label').textContent=canManage()?'GESTÃO DA OPERAÇÃO':'ÁREA DO MOTORISTA';
   navigate(canManage()?'dashboard':'routes');
+}
+async function logout(){
+  const buttons=[$('#logout'),$('#logout-top')];
+  buttons.forEach(button=>button.disabled=true);
+  try{
+    await api('/logout',{method:'POST',body:{}});
+    showAuth();
+    toast('Você saiu da sua conta.');
+  }catch(err){toast(err.message,true)}finally{buttons.forEach(button=>button.disabled=false)}
 }
 async function init(){try{state.user=await api('/me');showApp()}catch{const setup=await api('/setup');needsSetup=setup.needs_setup;showAuth()}}
 $('#auth-form').onsubmit=async e=>{
